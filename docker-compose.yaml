@@ -1,0 +1,55 @@
+services:
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    ports:
+      - 4000:8080
+    networks:
+      - chatbot-network
+    restart: unless-stopped
+
+  chatbot-backend:
+    build:
+      context: .  # Root directory since backend is inside src/
+      dockerfile: backend.dockerfile
+    image: abhi7811/chatbot-backend:main
+    environment:
+      - SEARXNG_API_URL=http://searxng:8080
+      - DATABASE_URL=file:/home/chatbot/data/db.sqlite  # Ensures SQLite is stored properly
+    depends_on:
+      - searxng
+    ports:
+      - 3001:3001
+    volumes:
+      - backend-dbstore:/home/chatbot/data
+      - uploads:/home/chatbot/uploads
+      - ./config.toml:/home/chatbot/config.toml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - chatbot-network
+    restart: unless-stopped
+
+  chatbot-frontend:
+    build:
+      context: .  # Root directory
+      dockerfile: app.dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://127.0.0.1:3001/api
+        - NEXT_PUBLIC_WS_URL=ws://127.0.0.1:3001
+    image: abhi7811/chatbot-frontend:main
+    depends_on:
+      - chatbot-backend
+    ports:
+      - 3000:3000
+    networks:
+      - chatbot-network
+    restart: unless-stopped
+
+networks:
+  chatbot-network:
+
+volumes:
+  backend-dbstore:
+  uploads:
