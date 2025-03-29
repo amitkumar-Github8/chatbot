@@ -1,7 +1,7 @@
 # 🚀 ChatBot <!-- omit in toc -->
 
 
-[![Discord](https://dcbadge.vercel.app/api/server/compact=true)](https://discord.gg/26aArM)
+![Discord](https://dcbadge.vercel.app/api/server/compact=true)](https://discord.gg/26aArM)
 
 ![preview](.assets?)
 
